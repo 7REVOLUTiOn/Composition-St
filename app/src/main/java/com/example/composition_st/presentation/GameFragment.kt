@@ -6,15 +6,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.composition_st.R
+import com.example.composition_st.databinding.FragmentGameBinding
+import java.lang.RuntimeException
 
 class GameFragment : Fragment() {
+
+    private var _binding: FragmentGameBinding? = null
+    //Чтобы избежать крашей, мы до создания view - обьявили ее до создания view и после view
+    // Таким образом к binding можно образаться только когда она существует
+    private val binding: FragmentGameBinding
+    //Чтобы не делать постоянные проверки на null, мы создаем не null переменную binding,
+    //у которой переопредили геттер.
+    //Этот гетер возращает значение переменной binding с нижним подчеркиванием, если оно не равно null,
+    //а если ровно то у нас бросается исключение
+        get() =_binding ?: throw RuntimeException("FragmentGameBinding == null")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_game, container, false)
+        _binding = FragmentGameBinding.inflate(inflater,container,false)
+        return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
