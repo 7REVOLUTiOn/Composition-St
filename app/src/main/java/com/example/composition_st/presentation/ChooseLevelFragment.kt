@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.composition_st.R
 import com.example.composition_st.databinding.FragmentChooseLevelBinding
+import com.example.composition_st.domain.entity.Level
 import java.lang.RuntimeException
 
 class ChooseLevelFragment : Fragment() {
@@ -24,8 +25,46 @@ class ChooseLevelFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        with(binding){
+            buttonLevelTest.setOnClickListener{
+                launchGameFragment(Level.TEST)
+            }
+            buttonLevelEasy.setOnClickListener {
+                launchGameFragment(Level.EASY)
+            }
+            buttonLevelNormal.setOnClickListener {
+                launchGameFragment(Level.NORMAL)
+            }
+            buttonLevelHard.setOnClickListener {
+                launchGameFragment(Level.HARD)
+            }
+        }
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun launchGameFragment(level: Level){
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.main_container,GameFragment.newInstance(level))
+            .addToBackStack(GameFragment.NAME).commit() //
+        //Получаем ссылку на acitvity, получаем фрагмент менедженр и начинаем транзакцию
+        //вызываем метод replace, где указываем, создаем экземпляр элемента
+        //добавляем в backStack и вызываем метод commit
+    }
+
+    companion object { //Нужно для launchChooseLevel в welcome fragment
+
+        const val NAME = "ChooseLevelFragment"
+
+        fun newInstance(): ChooseLevelFragment{
+            return ChooseLevelFragment()
+        }
+    }
+
 }
