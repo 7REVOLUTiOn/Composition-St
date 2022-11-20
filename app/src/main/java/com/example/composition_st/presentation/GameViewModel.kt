@@ -1,10 +1,12 @@
 package com.example.composition_st.presentation
 
 import android.app.Application
+import android.content.Context
 import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.composition_st.R
 import com.example.composition_st.data.GameRepositoryImpl
 import com.example.composition_st.domain.entity.GameResult
@@ -14,12 +16,13 @@ import com.example.composition_st.domain.entity.Question
 import com.example.composition_st.domain.usecases.GenerateQuestionUseCase
 import com.example.composition_st.domain.usecases.GetGameSettingsUseCase
 
-class GameViewModel(application: Application):AndroidViewModel(application) {
+class GameViewModel(
+    private val application: Application,
+    private val level:Level
+):ViewModel() {
 
     private lateinit var gameSettings:GameSettings
-    private lateinit var level:Level
 
-    private val context = application
 
     private val repository = GameRepositoryImpl
 
@@ -63,16 +66,19 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
     val gameResult: LiveData<GameResult> //Во фрагменте мы подпишемся на данный обьект фрагмент
         get() = _gameResult //И когда он прилетит мы запустим следующий экран (экран завершения игры)
 
-    fun startGame(level: Level){ //Стартуем игру
-        getGameSettings(level) //Получаем её настройки
+    private fun startGame(){ //Стартуем игру - основное значение метода, в передаче во viewModel левела
+        getGameSettings() //Получаем её настройки
         startTimer() //Запускаем таймер
         generateQuestion() //Генериуем вопрос
         //Теперь при вызове данного метода из фрагмена у нас во viewMovel будут настройки игры и уровень
         updateProgress()
     }
 
-    private fun getGameSettings(level:Level){ //Момент когда мы получаем настройки
-        this.level = level
+    init {
+        startGame() //Теперь при создании view модели автоматически стартует игра.
+    }
+
+    private fun getGameSettings(){ //Момент когда мы получаем настройки
         this.gameSettings = getGameSettingsUseCase(level)
         _minPercent.value = gameSettings.minPercentOfRightAnswers
     }
@@ -119,7 +125,7 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
         val percent = calculatePercentOfRightAnswers()
         _percentOfRightAnswers.value = percent
         _progressAnswers.value = String.format(
-            context.resources.getString(R.string.progress_answers),
+            application.resources.getString(R.string.progress_answers),
             countOfRightAnswers,
             gameSettings.minCountOfRightAnswers
 
