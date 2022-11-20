@@ -5,7 +5,6 @@ import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.composition_st.R
 import com.example.composition_st.data.GameRepositoryImpl
 import com.example.composition_st.domain.entity.GameResult
@@ -30,10 +29,10 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
     private val getGameSettingsUseCase = GetGameSettingsUseCase(repository)
 
     private var countOfRightAnswers = 0
-    private var countOfQuestion = 0
+    private var countOfQuestions = 0
 
     private val _formattedTime = MutableLiveData<String>() //Из фрагмента можно подписаться на этот таймер
-    val formatted: LiveData<String> //И отображать время на вопрос
+    val formattedTime: LiveData<String> //И отображать время на вопрос
         get() = _formattedTime
 
     private val _percentOfRightAnswers = MutableLiveData<Int>() //Отображаем процент правильных овтетов
@@ -69,6 +68,7 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
         startTimer() //Запускаем таймер
         generateQuestion() //Генериуем вопрос
         //Теперь при вызове данного метода из фрагмена у нас во viewMovel будут настройки игры и уровень
+        updateProgress()
     }
 
     private fun getGameSettings(level:Level){ //Момент когда мы получаем настройки
@@ -104,7 +104,7 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
             _gameResult.value = GameResult(
             winner = enoughCountOfRightAnswers.value == true && enoughPercentOfRightAnswers.value == true,
             countOfRightAnswers = countOfRightAnswers,
-            countOfQuestion = countOfQuestion,
+            countOfQuestion = countOfQuestions,
             gameSettings = gameSettings
         )
     }
@@ -112,6 +112,7 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
     fun chooseAnswer(number:Int){ //При выборе ответ проиходит:
         checkAnswer(number)
         generateQuestion()
+        updateProgress()
     }
 
     fun updateProgress(){
@@ -121,13 +122,17 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
             context.resources.getString(R.string.progress_answers),
             countOfRightAnswers,
             gameSettings.minCountOfRightAnswers
+
         )
         _enoughCountOfRightAnswers.value = countOfRightAnswers >= gameSettings.minCountOfRightAnswers
         _enoughPercentOfRightAnswers.value = percent >= gameSettings.minPercentOfRightAnswers
     }
 
     private fun calculatePercentOfRightAnswers():Int{
-        return ((countOfRightAnswers / countOfQuestion.toDouble()) * 100).toInt()
+        if (countOfQuestions == 0) {
+            return 0
+        }
+        return ((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()
     }
 
     private fun checkAnswer(number: Int){
@@ -135,7 +140,7 @@ class GameViewModel(application: Application):AndroidViewModel(application) {
         if (number == rightAnswer){
             countOfRightAnswers++
         }
-        countOfQuestion++
+        countOfQuestions++
     }
 
     private fun generateQuestion(){

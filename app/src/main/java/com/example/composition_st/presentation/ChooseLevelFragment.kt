@@ -27,7 +27,7 @@ class ChooseLevelFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(binding){
+        with(binding){ //Устаналиваем слушатели клика
             buttonLevelTest.setOnClickListener{
                 launchGameFragment(Level.TEST)
             }
