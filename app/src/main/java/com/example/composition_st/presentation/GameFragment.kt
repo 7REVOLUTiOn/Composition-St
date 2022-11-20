@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.composition_st.R
 import com.example.composition_st.databinding.FragmentGameBinding
 import com.example.composition_st.domain.entity.GameResult
@@ -18,12 +20,21 @@ import java.lang.RuntimeException
 class GameFragment : Fragment() {
 
     private lateinit var level: Level
-    private val viewModelFactory by lazy {
+    /*private val viewModelFactory by lazy {
         GameViewModelFactory(
             level,
             requireActivity().application
         )
+    }*/
+
+    private val args by navArgs<GameFragmentArgs>() //Первый способ
+
+    private val viewModelFactory by lazy {
+        //val args = GameFragmentArgs.fromBundle(requireArguments()) //Второй способ
+        GameViewModelFactory(args.level,requireActivity().application)
     }
+
+
     private val viewModel: GameViewModel by lazy {
         ViewModelProvider(this, viewModelFactory)[GameViewModel::class.java]
     }
@@ -51,10 +62,10 @@ class GameFragment : Fragment() {
     //а если ровно то у нас бросается исключение
         get() =_binding ?: throw RuntimeException("FragmentGameBinding == null")
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parseArgs() //Как только страница создалась, то получаем параметры
-    }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -131,15 +142,24 @@ class GameFragment : Fragment() {
     }
 
     private fun launchGameFinished(gameResult: GameResult){
-        requireActivity().supportFragmentManager.beginTransaction()
+        /*requireActivity().supportFragmentManager.beginTransaction()
             .replace(R.id.main_container,GameFinishedFragment.newInstance(gameResult))
-            .addToBackStack(null).commit() //
+            .addToBackStack(null).commit() //*/
+
+         */
+
+         */
+        /*val args = Bundle().apply {
+            putSerializable(GameFinishedFragment.KEY_GAME_RESULT,gameResult)
+        }*/
+
+        findNavController().navigate(GameFragmentDirections.actionGameFragment2ToGameFinishedFragment2(gameResult))
     }
 
     companion object{
 
         const val NAME = "GameFragment"
-        private const val KEY_LEVEL = "level" //Константа для аргуента уровень
+        const val KEY_LEVEL = "level" //Константа для аргуента уровень
 
         fun newInstance(level: Level):GameFragment{
             return GameFragment().apply {

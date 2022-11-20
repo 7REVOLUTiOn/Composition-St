@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.example.composition_st.R
 import com.example.composition_st.databinding.FragmentWelcomeBinding
 import java.lang.RuntimeException
@@ -34,9 +35,10 @@ class WelcomeFragment : Fragment() {
     }
 
     private fun launchChooseFragment(){ //В текущей активити заменяется welcome фрагмент на chooseLevel Fragment
-        requireActivity().supportFragmentManager.beginTransaction()
+        /*requireActivity().supportFragmentManager.beginTransaction()
             .replace(R.id.main_container,ChooseLevelFragment.newInstance())
-            .addToBackStack(ChooseLevelFragment.NAME).commit()
+            .addToBackStack(ChooseLevelFragment.NAME).commit()*/
+        findNavController().navigate(R.id.action_welcomeFragment2_to_chooseLevelFragment2)  //Осуществляем переход на choose level fragment
     }
 
     override fun onDestroyView() {

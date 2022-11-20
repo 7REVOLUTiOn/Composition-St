@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.composition_st.R
 import com.example.composition_st.databinding.FragmentGameFinishedBinding
 import com.example.composition_st.domain.entity.GameResult
@@ -15,7 +17,8 @@ import java.lang.RuntimeException
 
 class GameFinishedFragment : Fragment() {
 
-    private lateinit var gameResult: GameResult
+    //private lateinit var gameResult: GameResult
+    private val args by navArgs<GameFinishedFragmentArgs>()
 
     private var _binding:FragmentGameFinishedBinding? = null
     private val binding:FragmentGameFinishedBinding
@@ -31,7 +34,7 @@ class GameFinishedFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        parseArgs()
+        //parseArgs()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,16 +48,17 @@ class GameFinishedFragment : Fragment() {
         _binding = null
     }
 
-    private fun parseArgs(){
+    /*private fun parseArgs(){
         gameResult = requireArguments().getSerializable(KEY_GAME_RESULT) as GameResult
-    }
+    }*/
 
     private fun retryGame(){
-         requireActivity().supportFragmentManager.popBackStack(GameFragment.NAME,FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        //requireActivity().supportFragmentManager.popBackStack(GameFragment.NAME,FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        findNavController().popBackStack()
     }
 
     private fun setupClickListener(){
-        val callback = object : OnBackPressedCallback(true){
+        /*val callback = object : OnBackPressedCallback(true){
             override fun handleOnBackPressed() {
                 retryGame()
             }
@@ -63,7 +67,10 @@ class GameFinishedFragment : Fragment() {
         binding.buttonRetry.setOnClickListener{
             retryGame()
         }//Мы получаем ссылку на activity, у этой активити получим onBackPressedDispather
-        // И добоавим слушателель на клик кнопки назад, и при нажатии вызывается метод retry game
+        // И добоавим слушателель на клик кнопки назад, и при нажатии вызывается метод retry game*/
+        binding.buttonRetry.setOnClickListener {
+            retryGame()
+        }
     }
 
     private fun bindViews(){
@@ -71,15 +78,15 @@ class GameFinishedFragment : Fragment() {
             emojiResult.setImageResource(getSmileResId())
             tvRequiredAnswers.text = String.format(
                 getString(R.string.required_score),
-                gameResult.gameSettings.minCountOfRightAnswers
+                args.gameResult.gameSettings.minCountOfRightAnswers
             )
             tvScoreAnswers.text = String.format(
                 getString(R.string.score_answers),
-                gameResult.countOfRightAnswers
+                args.gameResult.countOfRightAnswers
             )
             tvRequiredPercentage.text = String.format(
                 getString(R.string.required_percentage),
-                gameResult.gameSettings.minPercentOfRightAnswers
+                args.gameResult.gameSettings.minPercentOfRightAnswers
             )
             tvScorePercentage.text = String.format(
                 getString(R.string.score_percentage),
@@ -89,14 +96,14 @@ class GameFinishedFragment : Fragment() {
     }
 
     private fun getSmileResId():Int{
-        return if (gameResult.winner){
+        return if (args.gameResult.winner){
             R.drawable.ic_smile
         } else {
             R.drawable.ic_sad
         }
     }
 
-    private fun getPercentOfRightAnswers() = with(gameResult){
+    private fun getPercentOfRightAnswers() = with(args.gameResult){
         if (countOfQuestion == 0){
             0
         } else{
@@ -108,7 +115,7 @@ class GameFinishedFragment : Fragment() {
     companion object{
 
 
-        private const val KEY_GAME_RESULT = "game_result"
+        const val KEY_GAME_RESULT = "game_result"
 
         fun newInstance(gameResult: GameResult):GameFinishedFragment{
             return GameFinishedFragment().apply {
